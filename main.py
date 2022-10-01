@@ -51,10 +51,10 @@ def read_root():
 @app.get("/get_food")
 def get_data(type : str):
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="pkpos_db"
+        host="sql5.freesqldatabase.com",
+        user="sql5523367",
+        password="tIrlPr9iFe",
+        database="sql5523367"
     )
     mycursor = mydb.cursor()
 
@@ -85,10 +85,10 @@ def get_data(type : str):
 def signup(user: User):
     print("entered signup")
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="pkpos_db"
+        host="sql5.freesqldatabase.com",
+        user="sql5523367",
+        password="tIrlPr9iFe",
+        database="sql5523367"
     )
     mycursor = mydb.cursor()
 
@@ -127,10 +127,10 @@ def signup(user: User):
 def signup(login: Login):
     print("entered login")
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="pkpos_db"
+        host="sql5.freesqldatabase.com",
+        user="sql5523367",
+        password="tIrlPr9iFe",
+        database="sql5523367"
     )
     mycursor = mydb.cursor()
 
@@ -152,10 +152,10 @@ def signup(login: Login):
 @app.post("/addtocart", response_model=Cart)
 def signup(cart: Cart):
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="pkpos_db"
+        host="sql5.freesqldatabase.com",
+        user="sql5523367",
+        password="tIrlPr9iFe",
+        database="sql5523367"
     )
     mycursor = mydb.cursor()
     cart_id = uuid.uuid1()
@@ -180,10 +180,10 @@ def signup(cart: Cart):
 @app.get("/get_cart")
 def get_data(email : str):
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="pkpos_db"
+        host="sql5.freesqldatabase.com",
+        user="sql5523367",
+        password="tIrlPr9iFe",
+        database="sql5523367"
     )
     mycursor = mydb.cursor()
 
@@ -216,10 +216,10 @@ def get_data(email : str):
 @app.delete("/remove_cart")
 def remove_cart(cart_id : str):
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="pkpos_db"
+        host="sql5.freesqldatabase.com",
+        user="sql5523367",
+        password="tIrlPr9iFe",
+        database="sql5523367"
     )
 
     mycursor = mydb.cursor()

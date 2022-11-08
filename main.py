@@ -1,3 +1,4 @@
+from array import array
 import email
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +8,10 @@ import uuid
 from datetime import datetime
 from typing import Union
 from fastapi.responses import JSONResponse
+import json
+import os
+import stripe
+
 
 
 
@@ -14,6 +19,11 @@ app = FastAPI()
 
 origins = ['*']
 
+stripe.api_key = "pk_test_51Lnx65LKCea0KVTjHvucPZix6LDdX8A1JNH7c0LsnhEtYteaqSrO4Z6mLBQZ6rvitShyYvo5WwBwwi6eX6Uo2oZK00UIZ34QaD"
+
+def calculateTotal(data):
+    for i in data:
+        print(i)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -43,18 +53,30 @@ class Cart(BaseModel):
     qty: str
     total: str
 
+class Order(BaseModel):
+
+    orderid: str
+    food: str
+    price: str
+    total : str
+
+class Payment(BaseModel):
+
+    items: str
+    id: str
+
 @app.get("/")
 def read_root():
-    return "pkpos api"
+    return "PIRI PIRI "
 
 
 @app.get("/get_food")
 def get_data(type : str):
     mydb = mysql.connector.connect(
-        host="sql5.freesqldatabase.com",
-        user="sql5523367",
-        password="tIrlPr9iFe",
-        database="sql5523367"
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
     )
     mycursor = mydb.cursor()
 
@@ -85,10 +107,10 @@ def get_data(type : str):
 def signup(user: User):
     print("entered signup")
     mydb = mysql.connector.connect(
-        host="sql5.freesqldatabase.com",
-        user="sql5523367",
-        password="tIrlPr9iFe",
-        database="sql5523367"
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
     )
     mycursor = mydb.cursor()
 
@@ -127,10 +149,10 @@ def signup(user: User):
 def signup(login: Login):
     print("entered login")
     mydb = mysql.connector.connect(
-        host="sql5.freesqldatabase.com",
-        user="sql5523367",
-        password="tIrlPr9iFe",
-        database="sql5523367"
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
     )
     mycursor = mydb.cursor()
 
@@ -152,10 +174,15 @@ def signup(login: Login):
 @app.post("/addtocart", response_model=Cart)
 def signup(cart: Cart):
     mydb = mysql.connector.connect(
-        host="sql5.freesqldatabase.com",
-        user="sql5523367",
-        password="tIrlPr9iFe",
-        database="sql5523367"
+        # host="sql5.freesqldatabase.com",
+        # user="sql5523367",
+        # password="tIrlPr9iFe",
+        # database="sql5523367"
+
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
     )
     mycursor = mydb.cursor()
     cart_id = uuid.uuid1()
@@ -180,10 +207,10 @@ def signup(cart: Cart):
 @app.get("/get_cart")
 def get_data(email : str):
     mydb = mysql.connector.connect(
-        host="sql5.freesqldatabase.com",
-        user="sql5523367",
-        password="tIrlPr9iFe",
-        database="sql5523367"
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
     )
     mycursor = mydb.cursor()
 
@@ -216,10 +243,10 @@ def get_data(email : str):
 @app.delete("/remove_cart")
 def remove_cart(cart_id : str):
     mydb = mysql.connector.connect(
-        host="sql5.freesqldatabase.com",
-        user="sql5523367",
-        password="tIrlPr9iFe",
-        database="sql5523367"
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
     )
 
     mycursor = mydb.cursor()
@@ -227,6 +254,97 @@ def remove_cart(cart_id : str):
     sql = "DELETE FROM cart WHERE cart_id = %s"
 
     mycursor.execute(sql, (cart_id,))
+
+    mydb.commit()
+
+    return JSONResponse(content="success")
+
+@app.post("/payment", response_model=Payment)
+def payment(payment: Payment):
+    try:
+        
+        # Create a PaymentIntent with the order amount and currency
+        intent = stripe.PaymentIntent.create(
+            amount=payment.items,
+            currency='usd',
+            automatic_payment_methods={
+                'enabled': True,
+            },
+        )
+        return JSONResponse({
+            'clientSecret': intent['client_secret']
+        })
+    except Exception as e:
+        return e
+
+
+@app.post("/post_order", response_model=Order)
+def post_order(order: Order):
+    mydb = mysql.connector.connect(
+        # host="sql5.freesqldatabase.com",
+        # user="sql5523367",
+        # password="tIrlPr9iFe",
+        # database="sql5523367"
+
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
+    )
+    mycursor = mydb.cursor()
+    sql = "INSERT INTO orders (orderid, food, price, total) VALUES (%s,%s, %s, %s)"
+    val = (
+        order.orderid,
+        order.food,
+        order.price,
+        order.total,
+    )
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+
+    return JSONResponse(content="success")
+
+@app.get("/get_order")
+def post_order():
+    mydb = mysql.connector.connect(
+        # host="sql5.freesqldatabase.com",
+        # user="sql5523367",
+        # password="tIrlPr9iFe",
+        # database="sql5523367"
+
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
+    )
+
+    data = []
+    mycursor = mydb.cursor()
+    sql = "SELECT orderid, total, GROUP_CONCAT(food) AS food  FROM orders GROUP BY orderid"
+    mycursor.execute(sql)
+    results = mycursor.fetchall()
+
+    for result in results:
+        dict = {"id" : result[0], "total" : result[1], "foods" : result[2:]}
+        data.append(dict)
+
+    return data
+
+@app.delete("/delete_order")
+def delete_order(id : str):
+    mydb = mysql.connector.connect(
+        host="piripiri.ccuplmivihwz.us-east-2.rds.amazonaws.com",
+        user="admin",
+        password="Sahar499!",
+        database="piripiri_db"
+    )
+
+    mycursor = mydb.cursor()
+
+    sql = "DELETE FROM orders WHERE orderid = %s"
+
+    mycursor.execute(sql, (id,))
 
     mydb.commit()
 

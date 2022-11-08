@@ -1,25 +1,14 @@
-from array import array
-import email
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import mysql.connector
 from pydantic import BaseModel
 import uuid
-from datetime import datetime
-from typing import Union
 from fastapi.responses import JSONResponse
-import json
-import os
-import stripe
-
-
 
 
 app = FastAPI()
 
 origins = ['*']
-
-stripe.api_key = "pk_test_51Lnx65LKCea0KVTjHvucPZix6LDdX8A1JNH7c0LsnhEtYteaqSrO4Z6mLBQZ6rvitShyYvo5WwBwwi6eX6Uo2oZK00UIZ34QaD"
 
 def calculateTotal(data):
     for i in data:
@@ -259,23 +248,6 @@ def remove_cart(cart_id : str):
 
     return JSONResponse(content="success")
 
-@app.post("/payment", response_model=Payment)
-def payment(payment: Payment):
-    try:
-        
-        # Create a PaymentIntent with the order amount and currency
-        intent = stripe.PaymentIntent.create(
-            amount=payment.items,
-            currency='usd',
-            automatic_payment_methods={
-                'enabled': True,
-            },
-        )
-        return JSONResponse({
-            'clientSecret': intent['client_secret']
-        })
-    except Exception as e:
-        return e
 
 
 @app.post("/post_order", response_model=Order)
